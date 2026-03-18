@@ -1,0 +1,12 @@
+[submodule "Ares"]
+	path = Ares
+	url = git@github.com:JuaniRaggio/Ares.git
+[submodule "ccso"]
+	path = ccso
+	url = git@github.com:JuaniRaggio/ccso.git
+[submodule "ITBA-72.11-SO"]
+	path = ITBA-72.11-SO
+	url = git@github.com:alejoaquili/ITBA-72.11-SO.git
+[submodule "unit-test"]
+	path = unit-test
+	url = git@github.com:alejoaquili/c-unit-testing-example.git
