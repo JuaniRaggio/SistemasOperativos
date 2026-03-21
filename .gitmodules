@@ -10,3 +10,6 @@
 [submodule "unit-test"]
 	path = unit-test
 	url = git@github.com:alejoaquili/c-unit-testing-example.git
+[submodule "unit-testing"]
+	path = unit-testing
+	url = git@github.com:JuaniRaggio/c-unit-testing-example.git
