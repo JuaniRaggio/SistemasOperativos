@@ -1058,7 +1058,7 @@ struct TransformParams {
 };
 
 #define PushTransform(rect, ...)\
-  _PushTransform((rect), (TransformParams){.scale = Vec20ne, __VA_ARGS__})
+  _PushTransform((rect), (TransformParams){.scale = Vec2One, __VA_ARGS__})
 void *_PushTrasnform(Rect, rect, TransformParams params) { /* Implementation */}
 
 
