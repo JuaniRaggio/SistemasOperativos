@@ -938,8 +938,160 @@ void debitar(int *saldo, int debito) {
 ```
 
 #error[
-  No es necesario hacer codigo robusto contra deadlocks
+  No es necesario hacer codigo robusto contra deadlocks (*para esta materia*)
 ]
+
+= Multi process programming
+
+== Sync problems
+
+=== SCSP
+
+```c
+static const uint8_t N = 100;
+typedef int semaphore;
+semaphore mutex = 1;
+semaphore empty = N;
+semaphore full = 0;
+
+void producer(void) {
+  int item;
+  while (1) {
+    item = produce_item();
+    down(&empty); // Este mutex no te asegura que seas el unico insertando porque empieza en N
+    down(&mutex);
+
+    insert_item(item);
+
+    up(&mutex);
+    up(&full);
+  }
+}
+
+void consumer(void) {
+  int item;
+  while(1) {
+    down(&full); // Lo mismo pasa aca
+    down(&mutex);
+
+    item = remove_item();
+
+    up(&mutex);
+    up(&empty);
+    consume_item(item);
+  }
+}
+```
+
+
+=== Filosofos comensales
+
+#nota[
+  Tenes 5 comensales con un tenedor en cada uno de sus lados y para comer necesitan dos,
+  entonces necesitas resolver la sync de estos
+]
+
+```c
+static const uint8_t philosophers = 5;
+
+void philosopher(uint8_t philosopher_idx) {
+  while (1) {
+    think();                                // philosopher thinking
+    take_fork(philosopher_idx);             // take left fork
+    take_fork((philosopher_idx + 1) % N);   // take right fork
+    eat();                                  // yum yum
+    put_fork();                             // put left fork back on the table
+    put_fork((philosopher_idx + 1) % N);    // put right fork back on the table
+  }
+}
+```
+
+
+== Lectores y escritores
+
+
+```c
+
+typedef int semaphore;
+semaphore mutex = 1;
+semaphore db = 1;
+int rc = 0;
+
+void reader(void) {
+  while (1) {
+    down(&mutex);
+    if (++rc == 1) {
+      down(&db);
+    }
+    up(&mutex);
+    read_data_base();
+    down(&mutex);
+    if (--rc == 0) {
+      up(&db);
+    }
+    up(&mutex);
+    use_data_read();
+  }
+}
+
+void writer(void) {
+  while (1) {
+    think_up_data();
+    down(&db);
+    write_data_base();
+    up(&db);
+  }
+}
+
+```
+
+#error[
+  Esta solucion tiene un error y es que si tenes una lectura muy rapida, entonces nunca el writer va a poder tomar el mutex
+]
+
+
+= Deadlock
+
+== Definicion
+
+Un conjunto de procesos estan bloqueados si cada proceso del conjunto esta 
+esperando un evento que solo puede causar otro proceso del conjunto.
+
+
+= Master - Vista
+
+```c
+
+sem A = 0;
+sem B = 0;
+
+master {
+  while(1) {
+    // actualiza el estado
+    up(A);
+    down(B);
+  }
+}
+
+vista {
+  while(1) {
+    down(A);
+
+    // consultar estado
+    // imprimir la vista
+
+    up(B);
+  }
+}
+
+```
+
+
+
+
+
+
+
 
 
 
