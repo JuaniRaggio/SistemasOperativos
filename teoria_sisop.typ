@@ -1087,11 +1087,73 @@ vista {
 ```
 
 
+= Threads
+
+== Para que queremos un proceso dentro de un proceso?
+
+- Muchas actividades simultaneas, algunas bloqueantes
+  - Desglosar la solucion en hilos secuenciales
+    - Aumenta el uso de CPU
+    - Simplifica la programacion
+    - Aprovecha arquitecturas con multiples CPUs
+
+- La misma nocion de modelo de procesos
+  - Abstraer detalles y pensar en procesos secuenciales
+  - Con el agregado de que comparten un espacio de direcciones
+
+- Son mas "baratos" $->$ *Tiene mucho sentido porque no tenes que crear un nuevo espacio de direcciones como en los procesos*
+  - Creacion y destruccion
+  - Hasta 10-100 veces mas rapido que un proceso
 
 
+#importante[
+  Si todo el espacio de memoria es compartido, ya es una "pista" sobre tener que usar
+  threads porque justamente ya tenes esa caracteristica de forma natural sin tener que
+  crear memoria compartida.
+]
+
+== Ejemplo - Procesador de texto
+
+- Corrector ortografico
+- Auto guardado
+- Procesar input
+- Visualizar contenido
 
 
+== Ejemplo - Web server
 
+- Atender conexiones
+- Enviar paginas en cache
+- Buscar paginas en disco (bloqueante)
+
+#nota[
+  La estructura que se tiene aca es:
+
+  - Dispatcher thread: Es unico y se encarga de redireccionarte a un worker thread
+  - Worker threads: Se encarga de hacer el trabajo duro de procesamiento
+]
+
+=== Como seria el server sin threads?
+
+_Y si no tengo threads y lo quiero mas eficiente?_
+
+- Syscalls no bloqueantes $=>$ Podrias decirle al kernel que no te bloquee cuando haces las syscalls, 
+  necesitas si una variable que te avise si retornaste. (podrias retornar por no tener dato)
+
+  ```c
+    read(...O_NONBLOCK...); // Para que no sea bloqueante el read
+  ```
+
+- Almacenar el estado de cada pedido para retomarlo cuando llegue la pagina del disco
+- Se pierde la nocion de computacion secuencial
+- Estamos simulando threads "the hard way"
+
+
+#table(columns: 2)[*Model*][*Characteristics*][Threads][Parallelism, blocking system calls][Single-threaded process][No parallelism, blocking systemcalls][Finite-state machine][Parallelism, nonblocking systemcalls, interrupts]
+
+
+- Las syscalls bloqueantes facilitan la programacion
+- El paralelismo aumenta el rendimiento
 
 
 
