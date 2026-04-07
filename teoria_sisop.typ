@@ -1156,9 +1156,79 @@ _Y si no tengo threads y lo quiero mas eficiente?_
 - El paralelismo aumenta el rendimiento
 
 
+== POSIX Threads - API
+
+- create
+- exit
+- join
+- yield
+- attr_init
+- attr_destroy
 
 
+== Threads en espacio de usuario
+
+- Kernel desconoce de su existencia
+- Desde la perspectiva del kernel son procesos con un unico thread
+- Provee soporte para threads en caso de que el kernel no los provea
+- Se implementan como una libreria
+
+#nota[
+  No va a distinguir threads el kernel.
+
+  Si el kernel soporta threads, va a existir una tabla de procesos y
+  una tabla de threads.
+
+  Si el kernel no soporta threads, entonces no va a saber de la 
+  existencia pero si va a tener procesos.
+]
 
 
+#doubt[
+  Por que decimos que la multiprogramacion no soporta paralelismo?
+][
+
+]
+
+=== Implementacion en espacio de usuarios
+
+- Cada proceso necesita su tabla de threads privadas $->$ analoga a la
+  tabla de procesos del kernel
+
+- Si un thread se bloquea localmente, se realiza el switch en espacio 
+  de usuario
+  - Es un orden (o mas) de magnitud mas rapido que el switch usual con
+    interrupciones y la intervencion del kernel
+  - No es necesario flushear la cache
+
+- Cada proceso puede tener su propio algoritmo de scheduling de 
+  threads
+
+#importante[
+  Los lenguajes de programacion estan completamente abstraidos de como
+  se manejan los threads y donde se ejecuta cada uno, menajer eso es 
+  una responsabilidad del kernel.
+]
+
+==== Que pasaria con las syscalls bloqueantes?
+
+Basicamente se va a bloquear todo el proceso a pesar de que tengas
+"multiples threads". No tiene sentido usar mecanismos de sync de sem_t
+para MT en espacio de usuario porque te va a bloquear muchisimos
+threads.
+
+#importante[
+  Hay que usar mecanismos de sincronizacion de la libreria que 
+  implementa esos threads, *no tiene sentido usar los semaforos POSIX*
+  ya que usa syscalls bloqueantes y te bloquea todo el proceso.
+]
+
+#nota[
+  Las syscalls bloqueantes disminuyen la complejidad del codigo.
+
+  ```c
+  read(0, ..., O_NONBLOCK, ...);
+  ```
+]
 
 
