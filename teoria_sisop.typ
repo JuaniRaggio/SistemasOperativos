@@ -1187,7 +1187,15 @@ _Y si no tengo threads y lo quiero mas eficiente?_
 #doubt[
   Por que decimos que la multiprogramacion no soporta paralelismo?
 ][
+  Lo decimos para un solo core, aunque el switching lo hace parecer
+  paralelo.
 
+  En caso de que si tengas arquis SMP, ahi si tenes paralelismo real.
+  Si ejecutas ChompChamps con los jugadores, es muy probable que 
+  tengas un proceso corriendo en paralelo. 
+
+  _Cuando se hace el time:_
+  $"system" - "user" = "tiempo bloqueado"$
 ]
 
 === Implementacion en espacio de usuarios
@@ -1230,5 +1238,28 @@ threads.
   read(0, ..., O_NONBLOCK, ...);
   ```
 ]
+
+#doubt[
+  yield, lo libera solo para un thread de otro proceso?
+][
+  Depende si el yield esta implementado por la libreria de user space,
+  en ese caso no le va a regalar eso a otro proceso.
+]
+
+#nota[
+  Existe un yield para procesos, solo sirve para cooperar con otros
+  procesos fundamentalmente.
+]
+
+
+#doubt[
+  Librerias standard que usan?
+][
+  Suelen usar kernel por el problema de bloqueo. Pero podria ser que
+  haya casos en los que necesites mucho switch y poco bloqueo entonces
+  si tenga sentido usar threads de user space.
+]
+
+
 
 
