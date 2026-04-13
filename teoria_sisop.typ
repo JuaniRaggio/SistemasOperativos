@@ -1261,5 +1261,49 @@ threads.
 ]
 
 
+= TP 2 - Sistema Operativo con scheduling
+
+#importante[
+  Memory management es lo mas importante de todo porque no se puede avanzar sino
+]
+
+
+= Memory Management
+
+== Introduccion
+
+Kernel $=>$ consecuencia de la necesidad del SO de admin. recursos
+$=>$ Abstracciones
+
+- CPU $=>$ Procesos
+- Memoria Fisica $=>$ Memoria Virtual
+- Disco $=>$ File System
+
+#nota[
+  El kernel es el primero que llega / se ejecuta y por eso es el
+  administrador
+]
+
+
+=== Memoria
+
+- Fisica $=>$ Se organiza en *PAGE FRAMES*
+
+- Virtual $=>$ Se organiza en *PAGES*
+
+
+==== MM Layers
+
+3. User-Space Allocator::Address space disponible
+2. Virtual Memory Manager::Pages en Address Space
+1. Physical Memory Manager / Page frame allocator::Page Frames de RAM
+
+
+== Responsabilidades
+
+== Ejemplo Dummy
+
+== Posibles implementaciones
+
 
 
