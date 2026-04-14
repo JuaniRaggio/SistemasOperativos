@@ -1301,9 +1301,83 @@ $=>$ Abstracciones
 
 == Responsabilidades
 
-== Ejemplo Dummy
+- Asignacion exclusiva de memoria libre
+
+- Liberacion de memoria previamente asignada
+
+#nota[
+  Tambien tenemos que poder consultar el estado de la memoria
+]
+
+=== Analogia Biblioteca
+
+- Memoria $->$ Biblioteca
+  - Estantes Libres/Ocupadas
+
+- MM $->$ Bibliotecario
+
+#nota[
+  "Necesito espacio para guardar 5 libros" $->$ el bibliotecario va
+  a elegir un estante que se adopte de la mejor forma posible 
+  a la cantidad de libros que hay que guardar
+
+  *Ojo porque tambien necesita estantes para guardar las anotaciones
+  sobre donde guardo cada libro*
+]
+
+=== Consideraciones para el TPE
+
+- 1:1 Physical & Virtual Address Spaces
+  - Vamos a construir un MM que trabaje con PAGE FRAMES $->$ Sin Virtual Memory
+
+#importante[
+  - El huevo y la gallina $->$ Memoria para el MM?
+    *Guia de building hecha por Ariel Godio*:
+    - *Manual de Pure64* + *Guia de building* $->$ a partir de donde 
+      hay memoria libre para administrar por el MM.
+
+  #nota[
+    Esto sirve para entender que hay abajo del capo y todo lo que
+    no hicimos en arqui, como seria?
+  ]
+]
 
 == Posibles implementaciones
 
+=== Implementaciones de Physical Memory Allocators
+
+- Bitmap
+- Free Stack / List
+- Buddy
+- etc.
+
+
+== Ejemplos
+
+- Fragmentacion
+  - Interna
+  - Externa
+
+#importante[
+  RTOS tiene muy buena documentacion de la implementacion de su
+  Memory Manager $=>$ *Quiero ver esto*: 
+  
+  #align(center)[#link("https://www.freertos.org/Documentation/00-Overview")[Documentacion *RTOS*]]
+
+  Otros ejemplos: #link("https://github.com/jubalh/awesome-os")[Awesome OS]
+]
+
+- Alineacion de memoria
+
+#nota[
+  Lo importante no es el algoritmo, lo importante / valorable es la
+  integracion con nuestro sistema
+]
+
+#importante[
+  Es muy importante que el memory manager este alineado a palabra,
+  obviamente por una cuestion de eficiencia a nivel instrucciones de
+  asm
+]
 
 
