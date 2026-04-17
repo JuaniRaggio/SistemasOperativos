@@ -517,7 +517,7 @@ muchas cosas.
   - Ambos procesos tienen a la shell como ancestro en comun
   - De esta forma cada hijo solo puede hacer lo que deberia
   - El 2. y 3. se hacen usando close y el file descriptor
-  - El 4. y 5. se hacen usando dup y el file descriptor
+  - El 4. y 5. se hacen usando *dup2* y el file descriptor (es preferible sobre dup porque es atomico y permite especificar el FD destino)
 ]
 
 ```c
@@ -791,7 +791,11 @@ ejemplo una lista.
 #error[
   Hay que tener cuidado con guardar punteros en shared memory 
   porque volves a tener el problema del mapeo de memoria distinto
-  para cada proceso
+  para cada proceso.
+]
+
+#tip[
+  Para solucionar el problema de los punteros en memoria compartida, se suelen usar *punteros relativos* (offsets). En lugar de guardar una direccion absoluta, guardas la distancia desde el inicio del bloque de memoria compartida.
 ]
 
 #importante[
@@ -872,9 +876,11 @@ Los mensajes residen en un buffer
 
 
 #importante[
-  En el directorio `/proc/` se expone la informacion del pipe, ej:
+  En el directorio `/proc/` se expone la informacion de los file descriptors abiertos, ej:
 
-  `proc/<pid>/game_state`
+  `/proc/<pid>/fd/`
+  
+  (Si es un Named Pipe, este vive en el sistema de archivos regular).
 ]
 
 
@@ -1046,7 +1052,11 @@ void writer(void) {
 ```
 
 #error[
-  Esta solucion tiene un error y es que si tenes una lectura muy rapida, entonces nunca el writer va a poder tomar el mutex
+  Esta solucion tiene un error y es que si tenes una lectura muy rapida, entonces nunca el writer va a poder tomar el mutex (Reader Preference).
+]
+
+#nota[
+  Existe una variante de este problema que otorga *prioridad a los escritores* (Writer Preference) para evitar la inanicion de los mismos.
 ]
 
 
@@ -1439,6 +1449,36 @@ $=>$ Abstracciones
   obviamente por una cuestion de eficiencia a nivel instrucciones de
   asm
 ]
+
+= Scheduling
+
+== Introducción
+Proceso por el cual el *Scheduler* decide qué proceso en estado `READY` pasa a estado `RUNNING`. El objetivo es maximizar la eficiencia del sistema.
+
+== Conceptos Clave
+- *Preemptive (Apropiativo):* El Kernel puede quitarle el CPU a un proceso a la fuerza.
+- *Non-Preemptive (No apropiativo):* El proceso tiene el CPU hasta que él mismo lo libera o se bloquea.
+- *Quantum (o Time Slice):* El tiempo máximo que un proceso puede estar en el CPU antes de ser rotado.
+
+== Métricas
+- *Throughput:* Procesos terminados por unidad de tiempo.
+- *Turnaround Time:* Tiempo total desde que el proceso llega hasta que termina.
+- *Waiting Time:* Tiempo pasado en la cola de `READY`.
+- *Response Time:* Tiempo desde el comando hasta la primera respuesta.
+
+== Algoritmos Clásicos
+1. *FCFS (First-Come, First-Served):* El primero en llegar es el primero en ser atendido. Simple pero sufre de *Efecto Convoy*.
+2. *SJF (Shortest Job First):* El más corto primero. Óptimo para minimizar espera, pero difícil de predecir.
+3. *Round Robin (RR):* FCFS con Quantum. Ideal para sistemas interactivos.
+4. *Priority Scheduling:* Prioridades para cada proceso. Puede causar *Starvation* (solución: *Aging*).
+5. *MLFQ (Multi-Level Feedback Queue):* Múltiples colas con distintas prioridades. Es el estándar en SO reales.
+
+#tip[
+  Prestá atención al tamaño del *Quantum*:
+  - Muy chico: Mucho overhead por context switch.
+  - Muy grande: Pobre tiempo de respuesta.
+]
+
 
 
 
