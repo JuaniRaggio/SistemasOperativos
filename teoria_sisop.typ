@@ -1271,30 +1271,6 @@ threads que tengas en ese proceso.
   si tenga sentido usar threads de user space.
 ]
 
-#importante[
-  *Para user space threads:*
-
-  _El objetivo principal de user space threads es separar tareas 
-  bloqueantes en distintos threads. Por ejemplo ir a buscar una pagina
-  a disco - Agodio 2026_
-
-  _For applications that are essentially entirely CPU bound and rarely
-  block, what is the point of having threads at all? No one would
-  seriously propose computing the first n prime numbers or playing
-  chess using threads because there is nothing to be gained by doing
-  it that way_
-
-  User-space threads son utiles para syscalls bloqueantes *no porque
-  las manejan mejor de forma magica*, el runtime lo que permite es
-  tener *millones* de estos sin costo y gestionar el I/O async 
-  (syscalls bloqueantes que explicitamente le pedimos al kernel que
-  no lo sean con O_NONBLOCK) de forma transparente al programador. 
-  Ademas "el sin costo" es aun mas grande en comparacion a procesos
-  que literalmente tienen que *copiar TODO el stack del contexto
-  actual* simplemente para crearse y luego cuando se hace el execve
-  lo borran.
-]
-
 ==== Page faults
 
 #nota[
@@ -1323,12 +1299,57 @@ Analogia timer (externo) - kernel / signal - libreria de threads
 
 Uso de threads: Separar hilos que fundamentalmente se bloquean
 
+=== Importante sobre user space threads
+
+#importante[
+  *Para user space threads:*
+
+  _El objetivo principal de user space threads es separar tareas 
+  bloqueantes en distintos threads. Por ejemplo ir a buscar una pagina
+  a disco - Agodio 2026_
+
+  _For applications that are essentially entirely CPU bound and rarely
+  block, what is the point of having threads at all? No one would
+  seriously propose computing the first n prime numbers or playing
+  chess using threads because there is nothing to be gained by doing
+  it that way_
+
+  User-space threads son utiles para syscalls bloqueantes *no porque
+  las manejan mejor de forma magica*, el runtime lo que permite es
+  tener *millones* de estos sin costo y gestionar el I/O async 
+  (syscalls bloqueantes que explicitamente le pedimos al kernel que
+  no lo sean con O_NONBLOCK) de forma transparente al programador. 
+  Ademas "el sin costo" es aun mas grande en comparacion a procesos
+  que literalmente tienen que *copiar TODO el stack del contexto
+  actual* simplemente para crearse y luego cuando se hace el execve
+  lo borran.
+
+  *No podes tener paralelismo obviamente con user space threads* porque el
+  kernel no tiene idea que tenes multiples threads porque justamente lo ve
+  como un proceso mas, no entiende lo que estas haciendo adentro.
+]
+
 == Threads - Implementacion Kernel space
 
 - No es necesario el run-time system ni tabla de threads (como en ust)
 - Un thread se bloquea como es usual y el kernel elige otro thread 
   (u otro proceso)
 - Debido al mayor costo, se pueden *reutilizar los threads*
+
+#nota[
+  Que es lo costoso de los kernel space threads?
+
+  Justamente que tenes que hacer todo el context switching para pasar
+  a kernel space. Tanto permisos, backup de ip, sp, etc. entonces tener
+  que hacer todo esto tantas veces es ineficiente en cantidad de 
+  instrucciones y por lo tanto tiempo de ejecucion
+]
+
+
+
+
+
+
 
 
 = TP 2 - Sistema Operativo con scheduling
