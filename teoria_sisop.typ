@@ -559,7 +559,7 @@ break;
 
 - *Programa*: Almacenado en disco, no hice nada
 
-- Un programa corriendo 2+ veces? Es posible ya que se puede ejecutar 
+- Un programa corriendo 2+ veces? Es posible ya que se puede ejecutar
   en dos procesos distintos, tambien lo podes ejecutar dos veces
 
   \
@@ -570,7 +570,7 @@ break;
 
 #nota[
   Esto viene de que la vision de la realidad del proceso es que todos
-  los recursos son para el, pero esto es conceptual desde la 
+  los recursos son para el, pero esto es conceptual desde la
   perspectiva del proceso.
 
   La realidad es que el CPU es usado por muchos procesos.
@@ -587,20 +587,20 @@ break;
 \
 
 - Facilita pensar en una coleccion de procesos corriendo pseudo
-  paralelamente en lugar de pensar en los switches $->$ 
+  paralelamente en lugar de pensar en los switches $->$
   multiprogramming
 
-- Este switch no es uniforme ni reproducible $->$ supuestos sobre 
+- Este switch no es uniforme ni reproducible $->$ supuestos sobre
   tiempo de ejecucion
 
 
 #importante[
-  Una *secuencia de procesos o proceso* es solo una instancia de la 
-  ejecucion de un programa. Cada proceso tiene su propio CPU virtual, 
+  Una *secuencia de procesos o proceso* es solo una instancia de la
+  ejecucion de un programa. Cada proceso tiene su propio CPU virtual,
   esto es una simplificacion de la realidad pero desde la perspectiva
   del proceso eso es lo que esta pasando.
 
-  *Multiprogramming* es la forma en la que el CPU distribuye su 
+  *Multiprogramming* es la forma en la que el CPU distribuye su
   ejecucion a travez de multiples procesos
 ]
 
@@ -628,35 +628,35 @@ break;
 
 == UNIX - Win32
 
-En ambos casos los procesos creados tienen su propio espacio de 
+En ambos casos los procesos creados tienen su propio espacio de
 direcciones
 
 
 == Terminacion de procesos
 
 Casos en los que ocurre
-  - Salida normal
-    - exit(0) / return 0
-    - \_start()
+- Salida normal
+  - exit(0) / return 0
+  - \_start()
 
-  - Salida por error (voluntaria)
-    - exit(!= 0) / return != 0;
+- Salida por error (voluntaria)
+  - exit(!= 0) / return != 0;
 
-  - Error fatal (involuntario)
-    - Instrucciones invalidas
-    - Signals
+- Error fatal (involuntario)
+  - Instrucciones invalidas
+  - Signals
 
-  - Muerto por otro proceso (involuntario)
-    - kill
-    - permisos $->$ usuarios $->$ kernel/user mode?
+- Muerto por otro proceso (involuntario)
+  - kill
+  - permisos $->$ usuarios $->$ kernel/user mode?
 
 
 == Estados de procesos
 
 - *running*: usando el cpu en este instante
-- *ready*: ejecutable; detenido temporalmente para dejar que se 
+- *ready*: ejecutable; detenido temporalmente para dejar que se
   ejecute otro proceso
-- *blocked*: no se puede ejecutar hasta que ocurra algun evento 
+- *blocked*: no se puede ejecutar hasta que ocurra algun evento
   externo. En el momento en el que un proceso este bloqueado, se va
   "iterando" por los otros (multiprogramming)
 
@@ -675,16 +675,16 @@ Casos en los que ocurre
 
 == Implementacion de procesos
 
-- *Process management*: registers, PC, program status word, 
+- *Process management*: registers, PC, program status word,
   stack pointer, process state, priority, scheduling parameters,
-  process id, parent process, process group, signals, time when 
-  process started, CPU time used, Children's CPU name, time to next 
+  process id, parent process, process group, signals, time when
+  process started, CPU time used, Children's CPU name, time to next
   alarm
 
-- *Memory management*: Pointer to text segment info, pointer to data 
+- *Memory management*: Pointer to text segment info, pointer to data
   segment info, pointer to stack segment info.
 
-- *File management*: Root dir., working dir., file descriptors, 
+- *File management*: Root dir., working dir., file descriptors,
   user id, group id
 
 
@@ -727,9 +727,9 @@ $ "Utilizacion del CPU" = 1 - p^n $
 
 #doubt[
   Tiene sentido crear un directorio en el que se tengan todos los
-  datos compartidos? En Arqui nos dijeron que en estos casos a 
-  pesar de que el Kernel pueda compartir tipos de datos con 
-  aplicaciones tipo la Shell, da igual, tenes que tener todo 
+  datos compartidos? En Arqui nos dijeron que en estos casos a
+  pesar de que el Kernel pueda compartir tipos de datos con
+  aplicaciones tipo la Shell, da igual, tenes que tener todo
   repetido igualmente.
 ][
   Esta pesimo lo que nos dijeron en arqui. *estaba perfecta mi
@@ -748,9 +748,9 @@ $ "Utilizacion del CPU" = 1 - p^n $
 === Shared Memory
 
 #importante[
-  - Cuando se dice que se expone /game_state pedazo de memoria, 
-    aunque el nombre parezca insignificante, si es importante ya 
-    que de esa misma forma se va a reconocer esa zona de memoria 
+  - Cuando se dice que se expone /game_state pedazo de memoria,
+    aunque el nombre parezca insignificante, si es importante ya
+    que de esa misma forma se va a reconocer esa zona de memoria
     desde cada proceso.
 
   - No tiene sentido usar read/write para escribir en shared memory
@@ -758,7 +758,7 @@ $ "Utilizacion del CPU" = 1 - p^n $
     intervension*.
 
   - La sincronizacion de procesos es manejada por los mismos, no se
-    encarga el Kernel. Coherencia de cache es importante para la 
+    encarga el Kernel. Coherencia de cache es importante para la
     sincronizacion de procesos y es un costo real de la multiprog.
 ]
 
@@ -789,7 +789,7 @@ Queremos estructurar la informacion dentro de la shared memory, por
 ejemplo una lista.
 
 #error[
-  Hay que tener cuidado con guardar punteros en shared memory 
+  Hay que tener cuidado con guardar punteros en shared memory
   porque volves a tener el problema del mapeo de memoria distinto
   para cada proceso.
 ]
@@ -807,7 +807,7 @@ ejemplo una lista.
 ===== mmap()
 
 Retorna una virutal address al comienzo del estado. En cada proceso
-te da la direccion virutal que si la pasas a fisica te lleva al 
+te da la direccion virutal que si la pasas a fisica te lleva al
 mismo lugar.
 
 === Pasaje de mensajes
@@ -859,7 +859,7 @@ Los mensajes residen en un buffer
 === Pipes
 
 - Com. unidireccional o bidireccional
-- Si es bidireccional, es half duplex o full duplex? _Esto tiene 
+- Si es bidireccional, es half duplex o full duplex? _Esto tiene
   que ver con que si es posible que los dos ends envien un mensaje
   a la vez o no_
 - Debe existir relacion padre-hijo?
@@ -869,7 +869,7 @@ Los mensajes residen en un buffer
 
 - Permite comunicar 2 procesos emparentados
 - UNIX: unidireccionales
-- UNIX: se crean con pipe(2) y se heredan al hacer fork(2) y 
+- UNIX: se crean con pipe(2) y se heredan al hacer fork(2) y
   execve(2)
 - identidad: ... $->$ file descriptors
 - UNIX: consultar pipe(7)
@@ -879,7 +879,7 @@ Los mensajes residen en un buffer
   En el directorio `/proc/` se expone la informacion de los file descriptors abiertos, ej:
 
   `/proc/<pid>/fd/`
-  
+
   (Si es un Named Pipe, este vive en el sistema de archivos regular).
 ]
 
@@ -906,15 +906,15 @@ Los mensajes residen en un buffer
 #importante[
   Definicion:
 
-  Una situacion en las que dos o mas procesos estan leyendo o 
-  escribiendo datos compartidos y el resultado final depende de 
+  Una situacion en las que dos o mas procesos estan leyendo o
+  escribiendo datos compartidos y el resultado final depende de
   quien corre en cada momento
 ]
 
 == Semaforos
 
 - El wakeup waiting bit se plantea como un entero representando la
-  cantidad de wakeups disponibles $[0-n]$, el cual llamaremos 
+  cantidad de wakeups disponibles $[0-n]$, el cual llamaremos
   semaforo
 
 - Se proponen 2 operaciones
@@ -1064,7 +1064,7 @@ void writer(void) {
 
 == Definicion
 
-Un conjunto de procesos estan bloqueados si cada proceso del conjunto esta 
+Un conjunto de procesos estan bloqueados si cada proceso del conjunto esta
 esperando un evento que solo puede causar otro proceso del conjunto.
 
 
@@ -1098,6 +1098,16 @@ vista {
 
 
 = Threads
+
+== Procesos vs Threads - Que necesitas para cada uno?
+
+#importante[
+  #align(
+    center,
+  )[
+    #table(columns: 2)[*Per-process items*][*Per-thread items*][Address space][Program counter][Global variables][Registers][Open Files][Stack][Child processes][State][Pending alarms][][Signals and signal handlers][][Accounting information][]
+  ]
+]
 
 == Para que queremos un proceso dentro de un proceso?
 
@@ -1147,7 +1157,7 @@ vista {
 
 _Y si no tengo threads y lo quiero mas eficiente?_
 
-- Syscalls no bloqueantes $=>$ Podrias decirle al kernel que no te bloquee cuando haces las syscalls, 
+- Syscalls no bloqueantes $=>$ Podrias decirle al kernel que no te bloquee cuando haces las syscalls,
   necesitas si una variable que te avise si retornaste. (podrias retornar por no tener dato)
 
   ```c
@@ -1189,7 +1199,7 @@ _Y si no tengo threads y lo quiero mas eficiente?_
   Si el kernel soporta threads, va a existir una tabla de procesos y
   una tabla de threads.
 
-  Si el kernel no soporta threads, entonces no va a saber de la 
+  Si el kernel no soporta threads, entonces no va a saber de la
   existencia pero si va a tener procesos.
 ]
 
@@ -1201,8 +1211,8 @@ _Y si no tengo threads y lo quiero mas eficiente?_
   paralelo.
 
   En caso de que si tengas arquis SMP, ahi si tenes paralelismo real.
-  Si ejecutas ChompChamps con los jugadores, es muy probable que 
-  tengas un proceso corriendo en paralelo. 
+  Si ejecutas ChompChamps con los jugadores, es muy probable que
+  tengas un proceso corriendo en paralelo.
 
   _Cuando se hace el time:_
   $"system" - "user" = "tiempo bloqueado"$
@@ -1213,18 +1223,18 @@ _Y si no tengo threads y lo quiero mas eficiente?_
 - Cada proceso necesita su tabla de threads privadas $->$ analoga a la
   tabla de procesos del kernel
 
-- Si un thread se bloquea localmente, se realiza el switch en espacio 
+- Si un thread se bloquea localmente, se realiza el switch en espacio
   de usuario
   - Es un orden (o mas) de magnitud mas rapido que el switch usual con
     interrupciones y la intervencion del kernel
   - No es necesario flushear la cache
 
-- Cada proceso puede tener su propio algoritmo de scheduling de 
+- Cada proceso puede tener su propio algoritmo de scheduling de
   threads
 
 #importante[
   Los lenguajes de programacion estan completamente abstraidos de como
-  se manejan los threads y donde se ejecuta cada uno, menajer eso es 
+  se manejan los threads y donde se ejecuta cada uno, menajer eso es
   una responsabilidad del kernel.
 ]
 
@@ -1237,7 +1247,7 @@ threads que tengas en ese proceso.
 
 
 #importante[
-  Hay que usar mecanismos de sincronizacion de la libreria que 
+  Hay que usar mecanismos de sincronizacion de la libreria que
   implementa esos threads, *no tiene sentido usar los semaforos POSIX*
   ya que usa syscalls bloqueantes y te bloquea todo el proceso.
 ]
@@ -1304,7 +1314,7 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 #importante[
   *Para user space threads:*
 
-  _El objetivo principal de user space threads es separar tareas 
+  _El objetivo principal de user space threads es separar tareas
   bloqueantes en distintos threads. Por ejemplo ir a buscar una pagina
   a disco - Agodio 2026_
 
@@ -1316,9 +1326,9 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 
   User-space threads son utiles para syscalls bloqueantes *no porque
   las manejan mejor de forma magica*, el runtime lo que permite es
-  tener *millones* de estos sin costo y gestionar el I/O async 
+  tener *millones* de estos sin costo y gestionar el I/O async
   (syscalls bloqueantes que explicitamente le pedimos al kernel que
-  no lo sean con O_NONBLOCK) de forma transparente al programador. 
+  no lo sean con O_NONBLOCK) de forma transparente al programador.
   Ademas "el sin costo" es aun mas grande en comparacion a procesos
   que literalmente tienen que *copiar TODO el stack del contexto
   actual* simplemente para crearse y luego cuando se hace el execve
@@ -1332,7 +1342,7 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 == Threads - Implementacion Kernel space
 
 - No es necesario el run-time system ni tabla de threads (como en ust)
-- Un thread se bloquea como es usual y el kernel elige otro thread 
+- Un thread se bloquea como es usual y el kernel elige otro thread
   (u otro proceso)
 - Debido al mayor costo, se pueden *reutilizar los threads*
 
@@ -1341,15 +1351,121 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 
   Justamente que tenes que hacer todo el context switching para pasar
   a kernel space. Tanto permisos, backup de ip, sp, etc. entonces tener
-  que hacer todo esto tantas veces es ineficiente en cantidad de 
+  que hacer todo esto tantas veces es ineficiente en cantidad de
   instrucciones y por lo tanto tiempo de ejecucion
 ]
 
+#error[
+  Este es un problema bastante obvio pero te lo aclaran en el manual
+  de read/write:
+
+  *Never read/write only in single bytes at a time* unless you are
+  really sure that you have a small amount of data to process. It is
+  extremely inefficient not to read/write as much data as you can buffer
+  each time.
+]
+
+#nota[
+  *futex*: Fast Userspace mutex
+
+  - Si es 0 $->$ bloquea $->$ Para consultar una variable no necesitas
+    el kernel obviamente.
+
+  - Sino $->$ decrementa $->$ Es solo decrementar una variable
+    $->$ no necesitas el kernel
+
+  *Todo lo que se puede resolver en espacio de usuario, es mejor hacerlo
+  ahi*. Hay cosas que obviamente requieren privilegio como el control de
+  los procesos porque perdes la capacidad de administrar recursos y eso
+  es justamente una de las funciones del kernel
+]
 
 
+== Threads - Implementacion Hibrida
+
+- El kernel solo es consciente del kernel-thread
+- Por sobre cada kernel-thread puede haber multiples user-threads
+
+#nota[
+  Se puede pensar como una ramificacion. El kernel solo tiene conocimiento
+  del/los kernel thread/s (de la rama principal), luego ese thread puede
+  crear user space threads (ramas que salen de la rama principal) que
+  el kernel no tiene idea que existen pero para poder tener mas threads 
+  de forma eficiente es ideal esto porque el context switching entre 
+  user space threads es muchisimo mas rapido.
+]
 
 
+=== Scheduler activation
 
+- Threads en espacio de usuario con la funcionalidad de aquellos en 
+  espacio de kernel
+
+- Al bloquearse, se crea un nuevo thread y se notifica al run-time system
+  (thread manager) - upcall - signal
+
+- Viola la estructura de un sistema de capas $=>$ Porque hay un upcall, *pero*
+  resuelve el problema de que los user space threads bloquean todo el proceso
+
+#nota[
+  La idea es poder darle al usuario del la api del kernel la posibilidad
+  de tener un kernel thread que asista a los user space threads para
+  impedir que el hecho de que se bloquee un user space thread no resulte
+  bloqueando todo el proceso (todos los threads).
+]
+
+#doubt[
+  Cual es la diferencia en terminos practicos de hacer scheduler activations
+  y hacer O_NONBLOCK syscalls?
+][
+
+]
+
+
+= Scheduling
+
+- Ususalmente tenemos multiples procesos peleando por el CPU
+- Que pasa si tenemos 2 o mas procesos en estado ready y al menos 1 CPU disponible?
+- Proceso vs thread
+
+#importante[
+  Estados de un proceso:
+
+  - Running
+  - Blocked
+  - Ready
+
+  #nota[
+    Cambios de estado:
+
+    1. Process blocks for input
+    2. Scheduler picks another process
+    3. Scheduler picks this process
+    4. Input becomes available
+
+  ]
+]
+
+== Observaciones
+
+- Antiguamente se podia atender de a 1 tarea a la vez $->$ 
+  Probablemente era una priority queue o queue
+
+- Con el advenimiento de la multiproogramacion se pueden tener muchos usuarios
+  esperando su uso, con interfaces interactivas y poco poder de computo $->$ tiempo
+  de CPU escaso
+
+- Con las PCs
+  - En general hay 1 tarea ppal $=>$ La que interactua con el usuario, las demas estan
+    en segundo plano.
+  - El tiempo de CPU no es un recurso escaso $=>$ En general tenemos mucho recurso de
+    CPU y lo subutilizamos
+
+- Recursos disponibles en sistemas portables? $=>$ En estos casos es un poco mas
+  escaso por cuestiones de energia, ahorro de energia y en consecuencia poder de 
+  computo
+
+- El switch de procesos es costoso (Estado del cPU, memory mapping, caches)
 
 
 = TP 2 - Sistema Operativo con scheduling
@@ -1409,7 +1525,7 @@ $=>$ Abstracciones
 
 #nota[
   "Necesito espacio para guardar 5 libros" $->$ el bibliotecario va
-  a elegir un estante que se adopte de la mejor forma posible 
+  a elegir un estante que se adopte de la mejor forma posible
   a la cantidad de libros que hay que guardar
 
   *Ojo porque tambien necesita estantes para guardar las anotaciones
@@ -1424,7 +1540,7 @@ $=>$ Abstracciones
 #importante[
   - El huevo y la gallina $->$ Memoria para el MM?
     *Guia de building hecha por Ariel Godio*:
-    - *Manual de Pure64* + *Guia de building* $->$ a partir de donde 
+    - *Manual de Pure64* + *Guia de building* $->$ a partir de donde
       hay memoria libre para administrar por el MM.
 
   #nota[
@@ -1451,8 +1567,8 @@ $=>$ Abstracciones
 
 #importante[
   RTOS tiene muy buena documentacion de la implementacion de su
-  Memory Manager $=>$ *Quiero ver esto*: 
-  
+  Memory Manager $=>$ *Quiero ver esto*:
+
   #align(center)[#link("https://www.freertos.org/Documentation/00-Overview")[Documentacion *RTOS*]]
 
   Otros ejemplos: #link("https://github.com/jubalh/awesome-os")[Awesome OS]
