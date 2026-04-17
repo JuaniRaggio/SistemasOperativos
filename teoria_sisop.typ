@@ -1467,6 +1467,126 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 
 - El switch de procesos es costoso (Estado del cPU, memory mapping, caches)
 
+== Comportamiento de un proceso
+
+- Usualmente los procesos alternan entre uso de CPU e I/O
+
+- I/O $=>$ Bloquearse esperando por un evento. eg: escribir la memoria de video 
+  para refrescar la pantalla se considera uso de CPU
+
+- CPU-bound vs I/O-bound (la clave es la longitud de la rafaga de CPU, no de I/O)
+
+- Con procesadores mas rapidos los procesos se vuelven mas I/O-bound
+
+#importante[
+  Que determina un proceso sea CPU-bound o I/O-bound?
+
+  Depende de la cantidad de tiempo que usas el CPU $=>$ longitud de rafaga de CPU.
+
+  Si tenes short CPU burst $=>$ I/O-bound
+
+  *Nos define lo que hacemos, no lo que hacen los demas*
+
+  #nota[
+    - Un ejemplo de CPU-bound es el calculo de los primeros n numeros primos, notemos
+      que la rafaga es todo, no se va a bloquear casi nada.
+
+    - La shell es I/O-bound porque la rafaga de CPU es muy corta, lo unico que hace
+      es parsear un comando + fork e inmediatamente wait, completa el mismo y hace
+      read $=>$ claramente casi todo lo que hace es bloqueante. *Obviamente podriamos
+      hacer un proceso CPU-bound en la shell*: 
+      ```sh
+        bash -c "while true; do i=1; done"  6.14s user 0.02s system 99% cpu 6.173 total
+      ```
+      _En este caso la shell se convierte en un proceso CPU-bound_
+  ]
+]
+
+== Cuando?
+
+- Creacion de un proceso: Padre o hijo?
+- Finalizacion de un proceso: _Cual de todos los listos?_
+  - Y si no hay ninguno listo? $->$ les va a pasar $->$ idle process
+
+- Bloqueo de proceso por I/O: _Cual de todos los listos?_
+  - Motivo de bloqueo: P1 alta prio. bloqueado hasta que P2 libera un semaforo
+
+- Interrupcion:
+  - Dispositivo que completo su trabajo (disco): _El que se bloqueo por este evento?_
+  - Timer: 50/60Hz $=>$ en cada interrupcion o cada n interrupciones
+
+== Clasificacion
+
+- Dependiendo de que se haga con las interrupciones del timer
+
+- Non-preemptive: Elige un proceso y corre hasta que se bloquea o hasta libera el CPU
+  voluntariamente. Esto seria similar a yield que basicamente tenes que liberar explicitamente
+  el cpu $=>$ el responsable del liberar el CPU es el propio proceso. La idea es tener un
+  algoritmo cooperativo entre los procesos y el kernel.
+
+- Preemptive: Elige un proceso y corre hasta que se vence un plazo establecido 
+  (time slice / quantum), *incluso si esta en estado ready*. Es necesaria la interrupcion
+  del timer para darle el control al SO (scheduler)
+
+#nota[
+  Definicion preempt: To prevent something from happening by taking action first
+]
+
+#nota[
+  - Para un *sistema interactivo necesitas algo preemptive*
+
+  - Para un sistema que *solo corre un programa o pocos, algo non-preemptive tiene mucho
+    sentido para ahorrar switches*. O incluso si nosotros somos los autores de todo lo que
+    haga el hardware, en ese caso podria ser interesante hacer algo non-preemptive justamente
+    para ahorrar switches
+
+  #error[
+    Es hasta peligroso tener un scheduler non-preemptive porque podria pasar que una app de terceros
+    te queme todo el CPU porque intencionalmente no te lo libera.
+  ]
+]
+
+== Categorias
+
+
+=== Batch / Sistema por lotes
+
+*Que tiene sentido hacer?*
+
+- No hay interaccion con el usuario
+- Non-preemptive o preemptive con un quantum largo $=>$ preemptive con q largo puede ser 
+  util tambien para evitar errores tipo while loops que no cortan nunca, etc.
+
+
+=== Interactivo
+
+*Que tiene sentido hacer?*
+
+- Preemptive $=>$ 
+
+- Uso general, programas arbitrarios $=>$ Justamente por lo que mencionamos anteriormente si un plugin
+  de chrome quiere minar criptomonedas con nuestra computadora podria hacerlo porque depende de el mismo
+  para liberar los recursos en caso de usar algo non-preemptive. *Para prevenir esto usamos algoritmos
+  preemptive*
+
+=== Real-time
+  - Sopresivamente, a veces no es necesario un scheduler preemptive
+  - Uso especifico, programas especificos
+
+== Objetivos generales
+
+=== All systems
+
+- Fairness $=>$ Giving each process a fair share of the CPU
+- Policy enforcement $=>$ Seeing that stated policy is carried out
+- Balance $=>$ Keeping all parts of the system busy
+
+
+=== Batch systems
+
+- Throughput $=>$ maimize jobs per hour
+- 
+
 
 = TP 2 - Sistema Operativo con scheduling
 
