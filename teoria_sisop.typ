@@ -1573,19 +1573,72 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
   - Sopresivamente, a veces no es necesario un scheduler preemptive
   - Uso especifico, programas especificos
 
+
 == Objetivos generales
 
 === All systems
 
-- Fairness $=>$ Giving each process a fair share of the CPU
-- Policy enforcement $=>$ Seeing that stated policy is carried out
-- Balance $=>$ Keeping all parts of the system busy
+- *Fairness* $=>$ Giving each process a fair share of the CPU. *This is part of the resource 
+  management responsability of The Kernel*
 
+- *Policy enforcement* $=>$ Seeing that stated policy is carried out. Eg: *Priority management of
+  processes has to be acomplished and this is also a kernel responsability*
+
+- *Balance* $=>$ Keeping all parts of the system busy. Again has to do with *Resource management -
+  Kernel's responsability*
+
+#nota[
+  - Procesos similares $=>$ similar servicio
+  - Politica $=>$ Procesos de seguridad corren tan pronto como estan disponibles
+  - Metricas parejas
+]
 
 === Batch systems
 
-- Throughput $=>$ maimize jobs per hour
-- 
+- Throughput $=>$ maximize jobs per time unit 
+
+$ "Throughput" = "jobs"/"time" $
+
+- Turnaround time $=>$ Minimize time between submission and termination
+
+- CPU utilization $=>$ Keep the CPU busy all the time
+
+#nota[
+  #doubt[
+    Maximizar throughput minimiza el turnaround time?
+  ][
+    No porque podrias estar todo el tiempo ejecutando tareas largas y no estar
+    terminando las tareas cortas
+  ]
+
+  - CPU $approx$ 100%
+]
+
+=== Interactive systems
+
+- *Response time* $=>$ respond to requests quickly $=>$ Improve user experience
+
+- *Proportionality* $=>$ meet user's expectations $=>$ If user wants to close a window, it has to
+  be acomplished inmediately. But if the user asks to upload a big amount of bytes to disk, then
+  it is expected to take some time
+
+#nota[
+  - Subir un video de 500MB a drive en 60 segundos vs cerrar el navegador en el mismo tiempo
+]
+
+=== Real-Time systems
+
+- *Meeting deadlines* $=>$ Avoid loosing data
+
+- *Predictability* $=>$ avoid quality degradation in multimedia systems
+
+
+// ===============================================================================================
+// El parcial es hasta aca
+// ===============================================================================================
+
+== Batch - Shortest
+
 
 
 = TP 2 - Sistema Operativo con scheduling
