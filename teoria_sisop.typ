@@ -1607,12 +1607,14 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 
   *Batch Systems:*
   - Maximize Throughput = $"jobs"/"time"$ $=>$ Metrica que maximiza el uso de CPU
-  - Minimize Turnaround time $=>$ Terminar procesos cuanto antes
+  - Minimize Turnaround time = $T_"finalizacion" - T_"llegada"$ $=>$ Terminar procesos cuanto antes
   - CPU utilization
 
   *Maximizar throughput no minimiza el turnaround time* porque
   podes estar en 100% CPU usage pero en una tarea muy intensiva
-  ignorando todas las tareas de I/O-Bound
+  ignorando todas las tareas de I/O-Bound entonces esas tareas de
+  *I/O-Bound, van a tener un Turnaround exesivamente superior al
+  tiempo real que estan usando el CPU*
 
   *Interactive systems*
   - Response Time
