@@ -1234,8 +1234,10 @@ _Y si no tengo threads y lo quiero mas eficiente?_
 
 #importante[
   Los lenguajes de programacion estan completamente abstraidos de como
-  se manejan los threads y donde se ejecuta cada uno, menajer eso es
-  una responsabilidad del kernel.
+  se manejan los *kernel threads* y donde se ejecuta cada uno, menajer eso es
+  una responsabilidad del kernel. Ojo porque los threads que veniamos mencionando
+  son las implementaciones en espacio de usuario y esas si tienen que ver con el
+  lenguaje de programacion o librerias de terceros.
 ]
 
 ==== Que pasaria con las syscalls bloqueantes?
@@ -1332,7 +1334,15 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
   Ademas "el sin costo" es aun mas grande en comparacion a procesos
   que literalmente tienen que *copiar TODO el stack del contexto
   actual* simplemente para crearse y luego cuando se hace el execve
-  lo borran.
+  lo borran. Hay un matiz importante y es que en realidad Linux y
+  probablemente (deberian) todos los Kernels modernos usan una
+  estrategia que se llama *Copy on Write* que significa que solo
+  copian una pagina en el momento en el que el proceso quiera escribir
+  sino simplemente apunta a la misma zona de memoria porque ademas
+  justamente es muy comun hacer el execve despues del fork y no
+  tendria sentido copiar todo siempre para despues borrarlo.
+  *Sigue siendo muy costoso porque tenes que hacer un nuevo
+  Process Control Block*
 
   *No podes tener paralelismo obviamente con user space threads* porque el
   kernel no tiene idea que tenes multiples threads porque justamente lo ve
@@ -1352,7 +1362,8 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
   Justamente que tenes que hacer todo el context switching para pasar
   a kernel space. Tanto permisos, backup de ip, sp, etc. entonces tener
   que hacer todo esto tantas veces es ineficiente en cantidad de
-  instrucciones y por lo tanto tiempo de ejecucion
+  instrucciones y por lo tanto tiempo de ejecucion. Todo este context
+  switching se gestiona a travez de la muy conocida `struct task_struct`
 ]
 
 #error[
@@ -1390,15 +1401,15 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
   Se puede pensar como una ramificacion. El kernel solo tiene conocimiento
   del/los kernel thread/s (de la rama principal), luego ese thread puede
   crear user space threads (ramas que salen de la rama principal) que
-  el kernel no tiene idea que existen pero para poder tener mas threads 
-  de forma eficiente es ideal esto porque el context switching entre 
+  el kernel no tiene idea que existen pero para poder tener mas threads
+  de forma eficiente es ideal esto porque el context switching entre
   user space threads es muchisimo mas rapido.
 ]
 
 
 === Scheduler activation
 
-- Threads en espacio de usuario con la funcionalidad de aquellos en 
+- Threads en espacio de usuario con la funcionalidad de aquellos en
   espacio de kernel
 
 - Al bloquearse, se crea un nuevo thread y se notifica al run-time system
@@ -1438,17 +1449,22 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
   #nota[
     Cambios de estado:
 
-    1. Process blocks for input
-    2. Scheduler picks another process
-    3. Scheduler picks this process
-    4. Input becomes available
-
+    - Running $->$ Ready: Process completed a full burst of CPU usage but still has
+      things to do.
+    - Ready $->$ Running: Dispatcher assigned this process the privilege of using the
+      CPU.
+    - Running $->$ Blocked: Process executed a syscall who blocked his execution and
+      is *waiting for an external event to occur*. _es importante esto ultimo porque
+      no es solo I/O lo que puede bloquear un proceso, un sleep lo blockea y creo que
+      no es considerado I/O_.
+    - Blocked $->$ Ready: Process got the information needed to keep on executing so
+      its ready to execute the next instruction.
   ]
 ]
 
 == Observaciones
 
-- Antiguamente se podia atender de a 1 tarea a la vez $->$ 
+- Antiguamente se podia atender de a 1 tarea a la vez $->$
   Probablemente era una priority queue o queue
 
 - Con el advenimiento de la multiproogramacion se pueden tener muchos usuarios
@@ -1462,7 +1478,7 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
     CPU y lo subutilizamos
 
 - Recursos disponibles en sistemas portables? $=>$ En estos casos es un poco mas
-  escaso por cuestiones de energia, ahorro de energia y en consecuencia poder de 
+  escaso por cuestiones de energia, ahorro de energia y en consecuencia poder de
   computo
 
 - El switch de procesos es costoso (Estado del cPU, memory mapping, caches)
@@ -1471,7 +1487,7 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 
 - Usualmente los procesos alternan entre uso de CPU e I/O
 
-- I/O $=>$ Bloquearse esperando por un evento. eg: escribir la memoria de video 
+- I/O $=>$ Bloquearse esperando por un evento. eg: escribir la memoria de video
   para refrescar la pantalla se considera uso de CPU
 
 - CPU-bound vs I/O-bound (la clave es la longitud de la rafaga de CPU, no de I/O)
@@ -1494,7 +1510,7 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
     - La shell es I/O-bound porque la rafaga de CPU es muy corta, lo unico que hace
       es parsear un comando + fork e inmediatamente wait, completa el mismo y hace
       read $=>$ claramente casi todo lo que hace es bloqueante. *Obviamente podriamos
-      hacer un proceso CPU-bound en la shell*: 
+      hacer un proceso CPU-bound en la shell*:
       ```sh
         bash -c "while true; do i=1; done"  6.14s user 0.02s system 99% cpu 6.173 total
       ```
@@ -1524,12 +1540,17 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
   el cpu $=>$ el responsable del liberar el CPU es el propio proceso. La idea es tener un
   algoritmo cooperativo entre los procesos y el kernel.
 
-- Preemptive: Elige un proceso y corre hasta que se vence un plazo establecido 
+- Preemptive: Elige un proceso y corre hasta que se vence un plazo establecido
   (time slice / quantum), *incluso si esta en estado ready*. Es necesaria la interrupcion
   del timer para darle el control al SO (scheduler)
 
 #nota[
   Definicion preempt: To prevent something from happening by taking action first
+
+  - *NON*-preemptive: *NO* te corta la ejecucion (no te saca de running para que pases a ready)
+
+  - Preemptive: *Si* te corta la ejecucion ya sea por tiempo cumplido u otra tarea critica necesita
+    ejecutarse
 ]
 
 #nota[
@@ -1554,7 +1575,7 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 *Que tiene sentido hacer?*
 
 - No hay interaccion con el usuario
-- Non-preemptive o preemptive con un quantum largo $=>$ preemptive con q largo puede ser 
+- Non-preemptive o preemptive con un quantum largo $=>$ preemptive con quantum largo puede ser
   util tambien para evitar errores tipo while loops que no cortan nunca, etc.
 
 
@@ -1562,7 +1583,8 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 
 *Que tiene sentido hacer?*
 
-- Preemptive $=>$ 
+- Preemptive $=>$ Justamente porque vas a tener mucho I/O y evitas que tenga que esperar la ejecucion
+  de otro proceso mas largo para seguir pidiendo datos.
 
 - Uso general, programas arbitrarios $=>$ Justamente por lo que mencionamos anteriormente si un plugin
   de chrome quiere minar criptomonedas con nuestra computadora podria hacerlo porque depende de el mismo
@@ -1570,15 +1592,40 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
   preemptive*
 
 === Real-time
-  - Sopresivamente, a veces no es necesario un scheduler preemptive
-  - Uso especifico, programas especificos
+- Sopresivamente, a veces no es necesario un scheduler preemptive
+- Uso especifico, programas especificos
 
 
 == Objetivos generales
 
+#nota[
+  Resumen de objetivos de Scheduling:
+  *All systems:*
+  - Fairness
+  - Balance
+  - Policy Enforcement
+
+  *Batch Systems:*
+  - Maximize Throughput = $"jobs"/"time"$ $=>$ Metrica que maximiza el uso de CPU
+  - Minimize Turnaround time $=>$ Terminar procesos cuanto antes
+  - CPU utilization
+
+  *Maximizar throughput no minimiza el turnaround time* porque
+  podes estar en 100% CPU usage pero en una tarea muy intensiva
+  ignorando todas las tareas de I/O-Bound
+
+  *Interactive systems*
+  - Response Time
+  - Proportionality
+
+  *RT:*
+  - *Meeting deadlines* $=>$ Avoid loosing data
+  - *Predictability* $=>$ avoid quality degradation in multimedia systems
+]
+
 === All systems
 
-- *Fairness* $=>$ Giving each process a fair share of the CPU. *This is part of the resource 
+- *Fairness* $=>$ Giving each process a fair share of the CPU. *This is part of the resource
   management responsability of The Kernel*
 
 - *Policy enforcement* $=>$ Seeing that stated policy is carried out. Eg: *Priority management of
@@ -1595,7 +1642,7 @@ Uso de threads: Separar hilos que fundamentalmente se bloquean
 
 === Batch systems
 
-- Throughput $=>$ maximize jobs per time unit 
+- Throughput $=>$ maximize jobs per time unit
 
 $ "Throughput" = "jobs"/"time" $
 
