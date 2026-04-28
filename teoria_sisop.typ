@@ -1839,6 +1839,17 @@ Proceso por el cual el *Scheduler* decide qué proceso en estado `READY` pasa a 
 ]
 
 
+= Context Switching
+
+El handler del timmer tick, tiene que encargarse de backupear todo el
+estado del proceso para que en el switching, se recuperen de forma exitosa
+los pcbs de cada uno
+
+Cuando se crea un proceso, se tiene que crear de forma "ready", osea
+inicializar con metadata que le permita ejecutar
+
+
+
 
 
 
