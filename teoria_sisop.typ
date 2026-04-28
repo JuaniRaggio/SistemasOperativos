@@ -1849,6 +1849,98 @@ Cuando se crea un proceso, se tiene que crear de forma "ready", osea
 inicializar con metadata que le permita ejecutar
 
 
+== Batch: First-Come First-Served
+
+
+- Cola tradicional
+- Non-preemptive
+- Bloqueados van al final
+- Simple y facil de programar
+
+- Caso patologico: Tengo un proceso CPU-bound que corre por 1s y se 
+  bloquea en disco y varios procesos I/O-bound que realizan 1000 accesos a
+  disco cada uno
+
+
+== Batch: Shortest job first
+
+- Asume que los tiempos de ejecucion son conocidos
+- Non-preemptive
+
+
+#nota[
+  Lo "bueno" de este algoritmo es que el throughput va a estar maximizado
+  obviamente
+]
+
+
+== Batch: Shortest Remaining Time Next
+
+- Version preemptive de shortest job first
+- Asume que los tiempos de ejecucion son conocidos
+- Al llegar un nuevo trabajo se compara su tiempo restante (total) con el
+  restante del trabajo actual
+
+
+#nota[
+  Este algoritmo ademas de minimizar el turnaround time, te maximiza el
+  throughput.
+]
+
+
+== Interactive: Round-Robin
+
+- Preemptive
+
+- A cada proceso se le asigna un intervalo de tiempo (quantum) para correr
+  - Si al finalizar sigue ready, se le quita el CPU de todos modos
+  - Si se bloquea antes de que venza el quantum, se pasa al siguiente
+
+- Facil de implementar
+  - Lista de procesos ready
+
+- El tamaño del quantum es importante, porque?
+
+
+#nota[
+  No se cambia el proceso por cada llegada
+]
+
+== Interactive: Priority Scheduling
+
+- Round-robin asume que todos los procesos son igualmente importantes
+- Se le asignan prioridades a los procesos y aquellos con la maxima prio 
+  son elegidos
+- Preemptive
+- La prioridad necesita ser ajustada periodicamente para evitar inanicion
+- La prioridad se puede asignar estaticamente o dinamicamente
+  - Dependiendo del usuario
+  - Dependiendo del comportamiento del proceso
+    - Para I/O-Bound puede ser $1/f$, donde *f es la proporcion del ultimo
+      quantum usado*
+
+
+#doubt[
+  En el caso del tpe, en realidad no vamos a poder crear memoria compartida porque
+  esta TODO compartido. Por lo que entendi de la clase de ayer, no tenemos que
+  implementar permisos de memoria, entiendo que si podes implementar permisos de
+  ejecucion en el sentido de "no podes ejecutar una funcion del kernel siendo usr"
+  pero en definitiva, la parte de *crear una shared memory con ciertos permisos*
+  no va a pasar nunca, no? Lo pregunto porque hoy se mencionaba eso sobre las
+  tablas de procesos $=>$ en nuestra implementacion del trabajo, los "procesos"
+  van a poder acceder perfectamente a la tabla de procesos, no? o que mecanismo
+  podriamos usar
+][]
+
+
+
+
+
+
+
+
+
+
 
 
 
