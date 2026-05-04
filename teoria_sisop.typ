@@ -1933,11 +1933,68 @@ inicializar con metadata que le permita ejecutar
 ][]
 
 
+== Interactive: Priority scheduling - Shortest process next
+
+- Parecido a su contraparte de sistemas batch
+- Es mas dificil determinar el mas corto (justamente porque son interactivos)
+- Se estima con comportamiento previo (bash) $=>$ shortest (estimated) running 
+  time
+- $T_0$ es la estimacion que ya tenemos para la siguiente ejecucion pero en 
+  realidad toma $T_1$ en terminar. Con estos 2 valores podemos actualizar nuestra
+  estimacion obteniendo una nueva con la siguiente formula:
+  $ a T_0 + (1 - a) T_1 $
+- En la prox ejecucion usamos la estimacion calculada pero tambien registramos el
+  tiempo real $T_2$ para volver a actualizar la estimacion con la misma formula:
+  $ a(a T_0 + (1 - a) T_1) + (1 - a) T_2 $
+- La eleccion de $a$ puede olvidar ejecuciones previas rapidamente ($a$ chico) o
+  recordarlas ($a$ grande)
+- Si $a = 1/2$, luego de 3 ejecuciones, el peso de la estimacion original $T_0$
+  cae a $1/8$ de su valor original
+
+$ T_0, T_0 / 2 + T_1 / 2, T_0 / 4 + T_2 / 2, T_0 / 8 + T_1 / 8 + T_2 / 4 + T_3 / 2 $
+
+#importante[
+  Si nos da un ej de estos, los numeros van a terminar siendo redondos $=>$ si
+  tenemos decimales, probablemente hay algo mal
+]
 
 
+== Interactive: Guaranteed scheduling
+
+- Prometamos que is hay $n$ usuarios conectados, cada uno recibira $1/n$ del 
+  tiempo de CPU
+- Alternativamente, si 1 usuario tiene $n$ procesos, cada proceso recibira $1/n$ 
+  del tiempo de CPU
+- *Registrar el tiempo* de uso de cada usuario / proceso en terminos de la 
+  proporcion usada
+- Elegir aquel proceso con la menor proporcion
 
 
+== Interactive: Lottery scheduling
 
+- Cada proceso tiene tickets de loteria para diferentes recursos
+
+- Vamos a sortear 20ms de CPU 50 veces por segundo ($50 H z$)
+
+-
+
+
+#nota[
+  Podriamos hacer que los tickets sean transferibles y se puede establecer una
+  analogia 1 a 1 depende de las tareas que tenemos que hacer. Por ejemplo: Tenes
+  que streamear en 3 procesos distintos a X fps $=>$ le asignas linealmente prio
+  segun los tickets que tambien los asignarias de forma lineal
+]
+
+
+== Interactive: Fair-Share Scheduling
+
+- Si tenemos 2 usuarios, pero uno ejecuta 9 procesos y otro solo 1?
+- El usuario asoc. a un proceso es relevante
+- Se le asigna una fraccion de tiempo a cada usuario
+
+Usuario 1: procesos A, B, C, D
+Usuario 2: proceso E
 
 
 
