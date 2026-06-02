@@ -1997,8 +1997,206 @@ Usuario 1: procesos A, B, C, D
 Usuario 2: proceso E
 
 
+// TODO: Quedan muchas clases aca de tomas de notas
+
+= File System
+
+== Motivacion
+
+*Queremos resolver 3 problemas*:
+- Almacenar mucha informacion, que no entra en el EDV
+- Persistencia luego de la muerte del proceso
+- Multiples procesos accediendo a la misma informacion
+
+Al disco lo podemos ver como una secuencia lineal de bloques de tamaño fijo que soporta 2 operaciones
+
+- Leer bloque k
+- Escribir bloque k
 
 
+== Que es un File System?
+
+Abstracciones:
+- Un proceso es una abstraccion del CPU
+- El espacio de direcciones es una abstraccion de la memoria
+- Los archivos son una abstraccion del disco, de hecho, se pueden
+  ver como un espacio de direcciones
+
+Los archivos son administrados por el file system del sistema
+operativo y se encarga de definir como seran:
+
+  - Estructurados
+  - Nombrados
+  - Accedidos
+  - Usados
+  - Protegidos
+  - Implementados
+  - Administrados
+
+
+== Organizacion del disco
+
+Tenemos archivos almacenados en disco $->$ Cual es la ppal responsabilidad del file system?
+
+  - Con bloques de 1KB y un archivo de 50KB, usamos 50 bloques $->$ Fragmentacion interna?
+
+  - Con bloques de 2KB y el mismo archivo, usamos 25 bloques $->$ Fragmentacion interna?
+
+
+  Ventajas
+    - Facil de implementar
+    - Excelente rendimiento de disco, por que?
+
+
+=== Asignacion con listas enlazadas
+
+- La primer palabra de cada bloque es un puntero al siguiente bloque
+- Solo necesitamos el puntero al primero bloque
+
+
+
+== Directorios
+
+
+== Archivos compartidos
+
+- Having the file system be a DAG complicates maintenance, but such is life
+- Uno de los archivos de C es accesible a traves de un directorio de B mediante un link
+- Que pasa si ambos directorios tienen la lista de bloques del archivo compartido y uno de los 2 decide agregar
+
+#nota[
+  Puede haber dos archivos iguales con distinto nombre pero NO
+  puede haber dos directorios distintos con el mismo nombre.
+
+  Esto pasa porque el file system se comporta como un arbol y si
+  un directorio tiene un link a otro directorio.
+]
+
+Existen 2 enfoques
+  - Existe 1 unico i-node para este archivo y es apuntado por ambos directorios
+  - Crear un archivo de tipo LINK en el directorio de B con la ruta real del archivo (*symbolic link*), donde el contenido de un symlink es un directorio *DISTINTO*, donde el contenido son links a esos archivos.
+
+#importante[
+  Los symlinks son otro tipo de "archivo" que contiene el nombre 
+  del directorio. Este tipo de archivo es identificable y hay un 
+  limite de cuantas veces se puede atravesar un symlink
+]
+
+Por otro lado, los hardlinks no tenes como distinguirlos
+
+
+Que pasa si C borra el archivo compartido?
+
+=== Puntero al i-node
+  - El hard link es invalido si se reusa el numero de i-node accede a otro archivo
+  - Se puede dejar intacto el i-node hasta que el contador sea 0
+
+=== Symbolic link
+- Simplemente se borra el i-node y el link se invalida como un path invalido
+
+
+== Log-structured file systems (LFS)
+
+Observaciones
+- Los CPUs mas rapidos
+- Las memorias mas grandes
+- Los discos mas grandes pero no mas rapidos
+- La cache de los discos mas grandes
+
+
+== Journaling file systems (JFS)
+
+Lamentablemente LFS no es muy compatible con file systems existentes pero podemos aprovechar algo:
+
+Para mejorar la robustez ante fallas podemos aprovechar la idea del log
+  - Mantener un log con lo que se va a hacer antes de que se haga
+  - Si el sistema falla, se consulta el log y se termina el trabajo
+
+Ejemplo: Eliminar un archivo en UNIX
+1. Eliminar el archivo del directorio
+2. Liberar el i-node
+3. Liberar los bloques de disco
+
+El orden no importa mientras no haya fallas. Si las haym una amplia variedad de escenarios pueden surgir
+  - Bloques inaccesibles, entradas de directorios invalidas o apuntando a i-nodes de otros archivos, i-nodes inaccesibles, etc.
+
+Resumen
+  - Escribimos el log de operaciones, luego las empezamos a ejecutar y cuando terminamos borramos el log
+
+
+== Superblock
+
+Almacena la metadata del file system
+  - Unmount status
+  - Corrupcion presente
+  - Estado del montaje
+  - Free inodes
+  - Espacio total
+  - Espacio libre
+  - Free block list
+
+#error[
+  Corrupcion en el filesystem es *peor* que corrupcion de datos
+]
+
+=== inodos
+
+#table(columns: 1)[Mode][uid][gid][link count][atime][ctime][mtime][size][block count][data blocks]
+
+== Manejo de consistencia
+
+- Las escrituras van al buffer cache/cache unificado
+  - Cortes de energia pueden dejar el FS inconsistente
+  - Se debe correr un FS Check (fsck) luego de una caida
+
+- Borrado de un archivo:
+  - Lock directory inode
+  - Eliminar entrada del directorio
+  - Unlock directory
+  - Lock file inode
+  - Decrementar link count
+  - if link == 0, liberar recursos
+  - Unlock inode
+
+
+- Sync writes data y metadata
+- Sync write metadata
+- Soft updates $=>$ Manera de ordenar y minimizar el riesgo (no tan difundida)
+- Journaling $=>$ Manejar transacciones de metadata en un log y se van implementando esas transacciones
+
+== Problemas de la implementacion clasica
+
+- Solo hay una copia del superblock
+- La tabla de inodos esta al comienzo del disco
+- No hay politica de asignacion de inodos
+
+
+== Primer mejora: BSD FFS (Fast File System)
+
+- Divide el disco en zonas logicas llamadas grupos de cilindros para minimizar el seek
+- Trata de alocar los inodos de los archivos de un mismo directorio en el mismo grupo de cilindros
+- Aumenta el block size
+
+
+throughput: Megabits por minuto que se transfieren
+
+== ext4
+- Agrega optimizaciones para adecuarlo a harware moderno
+  - 64ZB de tamaño de FS, 16 TB
+
+
+= ZFS
+
+- Todo es COW
+  - No se sobreescriben datos
+    - Estado en disco siempre valido $->$ no hace falta fsck
+
+- Todo es transaccional
+  - Cambios relacionados ocurren o fallan como un todo
+  - No hace falta journal
+
+- *Todo tiene checksum*
+  - No hay silent data corruption
 
 
 
