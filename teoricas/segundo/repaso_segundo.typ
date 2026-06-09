@@ -372,12 +372,112 @@ A $500 H z$, el quantum es de $2 m s$
     - hay procesos en la clase de mayor prioridad 
       $=>$ se los atiende con Round Robin.
 
-    cuando esa clase se vacia, se pasa a la siguiente, y asi 
-    sucesivamente
+    - cuando esa clase se vacia, se pasa a la siguiente, y asi 
+      sucesivamente
 
-  *Mecanismo de degradacion*:
+  *Mecanismo de degradacion*: Cuando un proceso usa su quantum 
+  completo, se lo baja de clase. Cuando un proceso se bloquea
+  antes de agotar su quantum, permanece en su clase o puede ser
+  promovido. (*similar al que vimos antes de $1/f$, donde f es la
+  fraccion del ultimo quantum que el proceso utilizo*)
+  
+  Esto hace que los procesos I/O-bound se mantengan en las clases
+  altas y los CPU-bound vayan cayendo hacia las clases mas bajas
 
-= Virtual Memory
+  #nota[
+    *Quantums de mayor tamaño para clases bajas*: Un proceso CPU
+    bound que llego a una clase baja puede recibir un quantum mas
+    largo. Asi, aunque se lo interrumpe con menor frecuencia, 
+    cuando eventualmente es atendido puede ejecutar durante mas 
+    tiempo, reduciendo el overhead de switches
+  ]
+
+
+=== Shortest Process Next (SPN)
+
+  SJF asumia tiempos conocidos, lo cual es razonable en sistemas
+  batch pero NO lo es en sistemas interactivos.
+
+  Para sistemas interactivos se usa Shortes Process Next, que
+  *estima el tiempo de ejecucion* en base al historial de 
+  ejecuciones previas del mismo proceso.
+
+  La tecnica se llama *media exponencial ponderada*:
+
+  $ T_"nueva" = a times T_"vieja" + (1 - a) times T_"medida" $
+
+  $T_"nueva": "La nueva estimacion del tiempo de ejecucion"$
+  $T_"vieja": "La estimacion anterior"$
+  $T_"medida": "El tiempo real medido en la ultima ejecucion"$
+  $a in [0, 1]: "Controla el peso relativo"$
+
+  - $0 < a < 0.5$: *poco peso al pasado*. La nueva depende casi 
+    solo de la ultima medicion. Se olvida rapidamente del historial
+
+  - $0.5 < a < 1$: *mucho peso al pasado*. Las ejecuciones 
+    recientes tienen poco impacto
+
+  - $a = 0.5$: Igual peso al pasado y al presente
+
+  #nota[
+    Se suelen tomar ejercicios asi y en general se eligen a's que
+    generen numeros redondos
+  ]
+
+=== Guaranteed Scheduling
+
+  *Cada usr recibira $1/N$ del tiempo de CPU*, donde N es la cant.
+  de usuarios activos.
+
+  Si hay un solo usuario con P procesos, cada proceso recibira 
+  $1/P$ del tiempo
+
+  La impl. requiere llevar un registro del tiempo de CPU usado por
+  cada proceso/usuario. El scheduler siempre elige el proceso que
+  ha recibido *menos CPU en relacion a lo que deberia haber 
+  recibido*, manteniendo asi el balance permanentemente.
+
+
+=== Lottery Scheduling
+
+Se realiza un *sorteo aleatorio* para decidir que proceso ejecuta
+
+Cada proceso recibe una cantidad de *tickets de loteria*.
+
+Mas tickets $=>$ Mas probabilidad de ser elegido
+
+50 Hz $=>$ 50 sorteos por segundo
+
+- *Semantica mas clara*: Si un proceso tiene el doble de tickets 
+  que otro, recibira aprox. el doble de CPU
+
+- *Transferencia de tickets*: Los procesos pueden cooperar 
+  transfiriendose tickets entre si
+
+- *Mapeo directo con el problema*: 3 procesos de streaming con 10,
+  20 y 50 FPS, les asigno 10, 20 y 50 tickets. Cada proceso 
+  recibira CPU proporcional a su carga real
+
+
+
+=== Fair-Share Scheduling
+
+Extiende la idea de equidad al nivel de *usuario en lugar de 
+proceso*. Si hay 2 usuarios, cada uno recibe 50% del CPU total, sin
+importar cuantos procesos tenga cada uno.
+
+
+
+= Virtual Memory y Paginacion
+
+
+
+
+
+
+
+
+
 
 
 
